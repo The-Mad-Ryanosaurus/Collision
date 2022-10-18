@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <title>Bouncy Ball</title>
+    <style></style>
+</head>
+
+<body>
+    <h1>Ryan Harte</h1>
+    <h2>G00338424</h2>
+    <canvas id="mycanvas" width="800" height="600" style="border:5px solid red;"></canvas>
+
+    <script type="text/javascript">
+        const canvas = document.getElementById('mycanvas');
+        const ctx = canvas.getContext('2d');
+
+        // Variables for Pokeball
+        var x = 150;
+        var y = 150;
+        var radius = 70;
+        // Variables for Pokeball Speed
+        var speedX = 0;
+        var speedY = 0;
+        // Variable pos used for position of pokeballs start position - set to 30 degrees further down
+        var posX = 0;
+        var posY = 0;
+        // Variable for how fast the ball spins
+        var rotateSpeed = 0;
+
+        // Variables for Pokeball animations
+        var canvasWidth = canvas.width;
+        var canvasHeight = canvas.height;
+
+
+
+        // Draws the Pokeball
+        // Can edit these to change size, velocity etc
+        class Pokeball {
+            constructor(x, y, radius, speedX, speedY, posX, posY, rotateSpeed) {
+                // x and y are the start position of the pokeball
+                this.x = x;
+                this.y = y;
+                // The radius of the pokeball
+                this.radius = radius;
+                // Speed/FPS the ball moves around the screen
+                this.speedX = 2;
+                this.speedY = 2;
+                // Position of Pokeballs start position point X and Y - 30 degrees
+                this.posX = Math.PI * 5 / 6;
+                this.posY = Math.PI * 11 / 6;
+                // How fast the ball rotates
+                this.rotateSpeed = 0.05;
+
+                // rotationAngle changes the start Angle of the Ball. Set to 0 as hardcoded to 30 in the Draw Method
+                // set to Math.PI / 6 to get it lookin normal
+                this.rotationAngle = 0;
+            }
+
+
+            move() {
+
+                // rotationAngle is the balls position and rotateSpeed is the speed
+                this.rotationAngle += this.rotateSpeed;
+
+                if (this.x > canvas.width - this.radius || this.x < this.radius) {
+                    this.speedX = -this.speedX;
+                    this.rotateSpeed = -this.rotateSpeed;
+                }
+                //Vertical
+                if (this.y > canvas.height - this.radius || this.y < this.radius) {
+                    this.speedY = -this.speedY;
+                    this.rotateSpeed = -this.rotateSpeed;
+                }
+
+                this.x += this.speedX;
+                this.y += this.speedY;
+
+
+            }
+
+            draw() {
+
+                // Draws the Top Half of the Ball
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.radius, this.posX + this.rotationAngle, this.posY + this.rotationAngle, false);
+                ctx.lineWidth = 10;
+                ctx.fillStyle = 'red';
+                ctx.fill();
+                ctx.strokeStyle = 'black';
+                ctx.stroke();
+
+                // Draws the Lower Half of the Ball
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.radius, this.posY + this.rotationAngle, this.posX + this.rotationAngle, false);
+                ctx.lineWidth = 10;
+                ctx.fillStyle = 'white';
+                ctx.fill();
+                ctx.strokeStyle = 'black';
+                ctx.stroke();
+
+                // Line bottom left 30 degrees
+                ctx.beginPath();
+                ctx.moveTo(this.x, this.y);
+                ctx.lineWidth = 10;
+                ctx.lineTo((Math.cos(this.posX + this.rotationAngle) * this.radius) + this.x, (Math.sin(this.posX + this.rotationAngle) * this.radius) + this.y);
+                ctx.stroke();
+
+                // Line top right 30 degrees
+                ctx.beginPath();
+                ctx.moveTo(this.x, this.y);
+                ctx.lineWidth = 10;
+                ctx.lineTo((Math.cos(this.posY + this.rotationAngle) * this.radius) + this.x, (Math.sin(this.posY + this.rotationAngle) * this.radius) + this.y);
+                ctx.stroke();
+
+                // Draws the Button
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.radius / 3.5, 0, Math.PI * 2, true);
+                ctx.closePath();
+                ctx.lineWidth = 10;
+                ctx.fillStyle = 'grey';
+                ctx.fill();
+                ctx.strokeStyle = 'black';
+                ctx.stroke();
+
+            }
+
+        }
+        ball1 = new Pokeball(x, y, radius, speedX, speedY, posX, posY, rotateSpeed);
+        ball2 = new Pokeball(x + 300, y, radius, speedX, speedY, posX, posY, rotateSpeed);
+
+        window.requestAnimationFrame(animatePokeball);
+
+
+        // Animation Function
+        function animatePokeball() {
+            // Clear Canvas
+            ctx.clearRect(0, 0, canvasWidth, canvasHeight);
+
+            // Checking for collision
+            let cx = ball2.x - ball1.x;
+            let cy = ball2.y - ball1.y;
+
+            let distance = Math.sqrt((cx * cx) + (cy * cy)) //pythagoras theorom
+            let sumOfRads = ball1.radius + ball2.radius;
+
+            if (distance <= sumOfRads) {
+                // Collision Occurs
+                var tempXSpeed = ball1.speedX;
+                var tempYSpeed = ball1.speedY;
+
+                ball1.speedX = ball2.speedX;
+                ball1.speedY = ball2.speedY;
+
+                ball2.speedX = tempXSpeed;
+                ball2.speedY = tempYSpeed;
+            }
+
+            ball1.draw();
+            ball1.move();
+
+            ball2.draw();
+            ball2.move();
+
+            window.requestAnimationFrame(animatePokeball);
+        }
+    </script>
+</body>
+
+</html>
